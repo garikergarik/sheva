@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHEVA FLOWER — цветочный магазин в Симферополе</title>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus+SC&family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #050505;
+    --line: rgba(5,5,5,.12);
+    --radius: 20px;
+    --shadow-card: 0 12px 24px -8px rgba(5,5,5,.16);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    position: relative; /* якорь для абсолютной вертикальной строки */
+  }
+  ::selection { background: var(--ink); color: #fff; }
+
+  .progress {
+    position: fixed; top: 0; left: 0; height: 6px; width: 0%;
+    background: var(--ink); z-index: 100; transition: width .1s linear;
+    border-radius: 0 4px 4px 0;
+  }
+
+  body::before {
+    content: ""; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: .035; pointer-events: none; z-index: 0;
+  }
+
+  #petals { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+  .cursor-glow {
+    position: fixed; width: 420px; height: 420px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(5,5,5,.06), transparent 60%);
+    transform: translate(-50%,-50%); pointer-events: none; z-index: 2;
+  }
+
+  .wrap { max-width: 1360px; margin: 0 auto; padding: 0 20px; }
+
+  h1, h2, h3 { font-family: 'Marcellus SC', serif; font-weight: 400; line-height: 1.0; }
+  .mono { font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: .12em; }
+
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 90;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 24px 0; border-bottom: 2px solid var(--ink);
+    background: rgba(255,255,255,.96); backdrop-filter: blur(16px);
+  }
+  .logo {
+    font-family: 'Marcellus SC', serif;
+    font-size: 32px; line-height: 1; letter-spacing: -.02em;
+    word-spacing: -8px;
+  }
+  .header-right { display: flex; align-items: center; gap: 24px; }
+  .nav a {
+    color: var(--ink); text-decoration: none; font-size: 13px;
+    letter-spacing: .14em; margin-left: 36px; position: relative;
+  }
+  .nav a::after {
+    content: ""; position: absolute; left: 0; bottom: -6px; height: 2px; width: 0%;
+    background: var(--ink); transition: width .35s cubic-bezier(.2,.8,.2,1);
+  }
+  .nav a:hover::after { width: 100%; }
+
+  .hdr-btn {
+    border: 2px solid var(--ink); background: transparent; color: var(--ink);
+    border-radius: 999px; padding: 10px 20px; font-size: 12px;
+    letter-spacing: .1em; cursor: pointer; font-family: 'Inter', sans-serif;
+    font-weight: 600; text-transform: uppercase;
+    transition: all .3s cubic-bezier(.2,.8,.2,1);
+    position: relative;
+  }
+  .hdr-btn:hover { background: var(--ink); color: #fff; transform: scale(1.06); }
+  .hdr-btn .badge {
+    position: absolute; top: -8px; right: -8px;
+    min-width: 20px; height: 20px; border-radius: 999px;
+    background: var(--ink); color: #fff;
+    font-size: 11px; display: flex; align-items: center; justify-content: center;
+    padding: 0 5px;
+  }
+  .hdr-btn .pts { font-weight: 700; }
+
+  /* Горизонтальная бегущая строка */
+  .ticker-wrap-big {
+    position: relative;
+    margin-top: 96px;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .ticker-track-big {
+    display: inline-flex;
+    animation: ticker-big 30s linear infinite;
+    will-change: transform;
+  }
+  .ticker-group-big {
+    display: inline-flex;
+    gap: 100px;
+    padding-right: 100px;
+  }
+  .ticker-item-big {
+    font-family: 'Marcellus SC', serif;
+    font-size: clamp(48px, 10vw, 96px); letter-spacing: -.02em;
+    word-spacing: -12px;
+    text-transform: uppercase;
+    color: rgba(128,128,128,.42);
+    text-shadow: 0 8px 16px rgba(0,0,0,.06);
+  }
+  @keyframes ticker-big { to { transform: translateX(-50%); } }
+
+  /* Вертикальная строка — от своего начала до САМОГО НИЗА страницы */
+  .ticker-wrap-vertical {
+    position: absolute;
+    top: 240px;
+    bottom: 0;              /* конец ровно у низа документа */
+    height: auto;
+    right: 12px;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .ticker-track-vertical {
+    display: flex;
+    flex-direction: column;
+    animation: ticker-vertical 26s linear infinite;
+    will-change: transform;
+  }
+  .ticker-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 90px;
+    padding-bottom: 90px;
+  }
+  .ticker-item-vertical {
+    font-family: 'Marcellus SC', serif;
+    font-size: clamp(40px, 7vw, 72px);
+    letter-spacing: -.02em;
+    word-spacing: -10px;
+    text-transform: uppercase;
+    color: rgba(128,128,128,.32);
+    writing-mode: vertical-rl;
+    text-shadow: 0 6px 14px rgba(0,0,0,.05);
+  }
+  @keyframes ticker-vertical { to { transform: translateY(-50%); } }
+
+  /* ===== Интерактивное поле точек — верхняя правая зона ===== */
+  .hero-field {
+    position: absolute;
+    top: 0; right: 0;
+    width: 46%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    -webkit-mask-image: radial-gradient(ellipse at 70% 40%, #000 35%, transparent 78%);
+    mask-image: radial-gradient(ellipse at 70% 40%, #000 35%, transparent 78%);
+  }
+  .hero-field canvas { width: 100%; height: 100%; display: block; }
+
+  /* Герой */
+  .hero {
+    min-height: 88vh; display: flex; flex-direction: column;
+    justify-content: center;
+    padding: 180px 0 40px;
+    position: relative; z-index: 2;
+  }
+  .hero-text { max-width: 760px; }
+  .hero-text h1 {
+    word-spacing: -9px;
+    font-size: clamp(56px, 9vw, 124px);
+    line-height: 0.85;
+    margin-bottom: 32px; letter-spacing: -.02em;
+    text-shadow: 0 10px 20px rgba(5,5,5,.08);
+  }
+  .hero-text h1 span { display: block; }
+  .hero-text p {
+    font-size: 19px; color: #444; max-width: 520px;
+    margin-bottom: 24px; line-height: 1.75;
+  }
+  .hero-text .bonus-note { font-size: 14px; color: #888; margin-bottom: 40px; }
+  .btn {
+    display: inline-block; padding: 18px 36px;
+    border: 2px solid var(--ink); color: var(--ink);
+    border-radius: 999px;
+    text-decoration: none; font-size: 14px; letter-spacing: .12em;
+    transition: all .35s cubic-bezier(.2,.8,.2,1);
+  }
+  .btn:hover {
+    background: var(--ink); color: #fff;
+    transform: scale(1.07);
+    box-shadow: 0 14px 30px rgba(5,5,5,.22);
+  }
+
+  /* Блок преимуществ — внизу страницы */
+  .facts-bottom {
+    padding: 80px 0;
+    text-align: center;
+    position: relative; z-index: 2;
+  }
+  .facts-bottom .facts {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 32px;
+  }
+  .facts-bottom .fact {
+    border: 1px solid var(--ink);
+    padding: 24px 32px;
+    border-radius: 12px;
+    background: #fff;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all .35s cubic-bezier(.2,.8,.2,1);
+  }
+  .facts-bottom .fact:hover {
+    background: var(--ink);
+    color: #fff;
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 20px 40px -10px rgba(5,5,5,.2);
+  }
+  .facts-bottom .fact b {
+    font-family: 'Marcellus SC', serif;
+    font-weight: 400;
+    font-size: 36px;
+    margin-bottom: 8px;
+  }
+  .facts-bottom .fact span {
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: #888;
+    transition: color .35s;
+  }
+  .facts-bottom .fact:hover span { color: rgba(255,255,255,.7); }
+
+  /* Каталог */
+  .catalog-head {
+    padding: 100px 0 56px;
+    display: flex; justify-content: space-between; align-items: baseline;
+    position: relative; z-index: 2;
+  }
+  .catalog-head h2 { font-size: 52px; }
+  .filter { display: flex; gap: 16px; position: relative; z-index: 2; }
+  .filter button {
+    background: transparent; border: 2px solid var(--ink);
+    border-radius: 999px;
+    padding: 12px 26px; font-size: 13px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-weight: 600; letter-spacing: .12em;
+    transition: all .3s cubic-bezier(.2,.8,.2,1);
+  }
+  .filter button:hover { background: var(--ink); color: #fff; transform: scale(1.08); }
+  .filter button.active { background: var(--ink); color: #fff; }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 40px; padding-bottom: 100px;
+    position: relative; z-index: 2;
+  }
+  .card {
+    display: flex; flex-direction: column; gap: 20px;
+    cursor: pointer; overflow: hidden; position: relative;
+    box-shadow: var(--shadow-card);
+    border: 1px solid rgba(5,5,5,.08);
+    border-radius: var(--radius);
+    background: #fff;
+    transition: transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s;
+  }
+  .card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 26px 48px -12px rgba(5,5,5,.28);
+  }
+  .card::before {
+    content: ""; position: absolute; inset: 0;
+    border: 2px solid var(--ink); opacity: 0;
+    border-radius: var(--radius);
+    transition: opacity .35s cubic-bezier(.2,.8,.2,1); z-index: 1;
+    pointer-events: none;
+  }
+  .card:hover::before { opacity: 1; }
+  .card-img-wrap {
+    width: 100%; height: 360px; overflow: hidden;
+    position: relative;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .card-img {
+    width: 100%; height: 100%;
+    background: #eaeaea; object-fit: cover;
+    transition: transform .9s cubic-bezier(.2,.8,.2,1);
+  }
+  .card:hover .card-img { transform: scale(1.12); }
+  .card-info { flex: 1; display: flex; flex-direction: column; padding: 0 20px 20px; }
+  .card-title { font-size: 24px; margin-bottom: 12px; font-family: 'Marcellus SC', serif; }
+  .card-price { margin-top: auto; font-size: 20px; font-weight: 700; }
+  .card-add {
+    margin-top: 16px; border: 2px solid var(--ink);
+    border-radius: 999px;
+    padding: 10px 22px;
+    background: transparent;
+    color: var(--ink); font-size: 13px; letter-spacing: .12em;
+    cursor: pointer; align-self: flex-start;
+    font-family: 'Inter', sans-serif; font-weight: 600;
+    transition: all .3s cubic-bezier(.2,.8,.2,1);
+  }
+  .card-add:hover { background: var(--ink); color: #fff; transform: scale(1.06); }
+
+  .shadow-layer {
+    position: fixed; inset: 0; pointer-events: none; z-index: -1;
+    background: radial-gradient(circle at 50% 50%, rgba(5,5,5,.06), transparent 75%);
+    transform: translate(0, 0);
+    transition: transform .12s ease-out;
+  }
+
+  .contacts {
+    padding: 80px 0; border-top: 2px solid var(--ink);
+    display: flex; flex-wrap: wrap; gap: 56px;
+    position: relative; z-index: 2;
+  }
+  .contact-block {
+    flex: 1; min-width: 300px;
+    background: #fafafa;
+    border: 1px solid rgba(5,5,5,.08);
+    border-radius: var(--radius);
+    padding: 32px;
+    transition: transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s;
+  }
+  .contact-block:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 20px 40px -10px rgba(5,5,5,.2);
+  }
+  .contact-block h3 { margin-bottom: 20px; }
+  .contact-block p { color: #444; line-height: 1.6; }
+  .contact-block a { color: var(--ink); text-decoration: none; }
+  .contact-block a:hover { text-decoration: underline; }
+
+  .addr-row { display: flex; align-items: center; gap: 10px; }
+  .map-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; flex: 0 0 36px;
+    border: 1.5px solid var(--ink); border-radius: 50%;
+    color: var(--ink);
+    transition: all .3s cubic-bezier(.2,.8,.2,1);
+  }
+  .map-icon svg { width: 18px; height: 18px; }
+  .map-icon:hover {
+    background: var(--ink); color: #fff;
+    transform: scale(1.12);
+    box-shadow: 0 8px 18px rgba(5,5,5,.2);
+  }
+
+  footer {
+    padding: 60px 0; border-top: 2px solid var(--ink);
+    text-align: center; font-size: 13px; color: #666;
+    position: relative; z-index: 2;
+  }
+
+  .fade-in { opacity: 0; transform: translateY(48px); }
+  .fade-in.in { opacity: 1; transform: none; transition: all .8s cubic-bezier(.2,.8,.2,1); }
+
+  /* Модальные окна */
+  .overlay {
+    position: fixed; inset: 0; z-index: 120;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(5,5,5,.5); backdrop-filter: blur(10px);
+    opacity: 0; pointer-events: none; transition: opacity .35s;
+  }
+  .overlay.open { opacity: 1; pointer-events: auto; }
+  .modal {
+    width: min(560px, 94vw); max-height: 86vh; overflow-y: auto;
+    background: #fff; border-radius: var(--radius);
+    padding: 40px; position: relative;
+    transform: translateY(40px) scale(.97); opacity: 0;
+    transition: transform .45s cubic-bezier(.2,.8,.2,1), opacity .45s;
+  }
+  .overlay.open .modal { transform: none; opacity: 1; }
+  .m-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 1px solid var(--line); background: transparent;
+    font-size: 16px; cursor: pointer; transition: all .3s;
+  }
+  .m-close:hover { background: var(--ink); color: #fff; }
+  .modal h3 { font-size: 30px; margin-bottom: 8px; }
+  .modal .sub { font-size: 13px; color: #888; margin-bottom: 26px; }
+
+  .cart-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 0; border-bottom: 1px solid var(--line); gap: 12px;
+  }
+  .cart-item .nm { font-weight: 600; }
+  .cart-item .qty { display: flex; align-items: center; gap: 10px; }
+  .cart-item .qty button {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1px solid var(--ink); background: transparent;
+    cursor: pointer; font-weight: 700; transition: all .25s;
+  }
+  .cart-item .qty button:hover { background: var(--ink); color: #fff; }
+  .cart-total { display: flex; justify-content: space-between; align-items: baseline; padding: 22px 0 6px; }
+  .cart-total b { font-family: 'Marcellus SC', serif; font-size: 26px; }
+  .bonus-line { font-size: 13px; color: #888; margin-bottom: 20px; }
+  .bonus-line em { font-style: normal; color: var(--ink); font-weight: 700; }
+  .btn-full {
+    width: 100%; padding: 16px; border: 2px solid var(--ink);
+    border-radius: 999px; background: transparent; color: var(--ink);
+    font-size: 14px; letter-spacing: .12em; cursor: pointer;
+    font-weight: 600; text-transform: uppercase;
+    transition: all .3s cubic-bezier(.2,.8,.2,1);
+  }
+  .btn-full:hover { background: var(--ink); color: #fff; transform: scale(1.02); }
+  .empty-note { color: #888; font-size: 14px; padding: 20px 0; }
+
+  .acc-tabs { display: flex; gap: 10px; margin-bottom: 24px; }
+  .acc-tabs button {
+    flex: 1; padding: 12px; border: 2px solid var(--ink);
+    border-radius: 999px; background: transparent; cursor: pointer;
+    font-weight: 600; font-size: 13px; letter-spacing: .08em;
+    text-transform: uppercase; transition: all .3s;
+  }
+  .acc-tabs button.active { background: var(--ink); color: #fff; }
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block; font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: #888; margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%; padding: 13px 16px;
+    border: 1px solid rgba(5,5,5,.2); border-radius: 14px;
+    font-size: 15px; font-family: 'Inter', sans-serif;
+    transition: border-color .3s;
+  }
+  .field input:focus { outline: none; border-color: var(--ink); }
+  .acc-panel { display: none; }
+  .acc-panel.active { display: block; }
+  .points-card {
+    background: var(--ink); color: #fff;
+    border-radius: var(--radius); padding: 26px; margin-bottom: 24px;
+  }
+  .points-card .k {
+    font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+    color: rgba(255,255,255,.55); margin-bottom: 8px;
+  }
+  .points-card .v { font-family: 'Marcellus SC', serif; font-size: 40px; }
+  .points-card .hint { font-size: 12px; color: rgba(255,255,255,.55); margin-top: 6px; }
+  .order-row {
+    display: flex; justify-content: space-between;
+    padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px;
+  }
+  .order-row .plus { font-weight: 700; }
+  .hello-name { font-family: 'Marcellus SC', serif; font-size: 24px; margin-bottom: 4px; }
+
+  @media (max-width: 768px) {
+    .hero { padding-top: 140px; }
+    .hero-text h1 { font-size: clamp(42px, 8vw, 72px); word-spacing: -5px; line-height: 0.9; }
+    .hero-field { width: 100%; height: 60%; opacity: .7; }
+    .ticker-item-big { font-size: clamp(36px, 8vw, 64px); }
+    .ticker-item-vertical { font-size: clamp(28px, 6vw, 48px); }
+    .ticker-wrap-vertical { top: 200px; right: 4px; }
+    .catalog-head { flex-direction: column; gap: 24px; }
+    .filter { flex-wrap: wrap; }
+    .facts-bottom .facts { flex-direction: column; gap: 16px; }
+    .facts-bottom .fact { width: 100%; }
+    .facts-bottom .fact b { font-size: 30px; }
+    .nav { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="shadow-layer" id="shadow"></div>
+<div class="cursor-glow" id="glow"></div>
+<canvas id="petals"></canvas>
+
+<header>
+  <div class="logo">SHEVA FLOWER</div>
+  <div class="header-right">
+    <nav class="nav">
+      <a href="#catalog">Каталог</a>
+      <a href="#contacts">Контакты</a>
+    </nav>
+    <button class="hdr-btn" onclick="openAccount()">Кабинет <span class="pts" id="ptsBadge"></span></button>
+    <button class="hdr-btn" onclick="openCart()">Корзина <span class="badge" id="cartBadge">0</span></button>
+  </div>
+</header>
+
+<!-- Горизонтальная бегущая строка -->
+<div class="ticker-wrap-big">
+  <div class="ticker-track-big">
+    <div class="ticker-group-big">
+      <span class="ticker-item-big">SHEVA FLOWER</span>
+      <span class="ticker-item-big">SHEVA FLOWER</span>
+      <span class="ticker-item-big">SHEVA FLOWER</span>
+    </div>
+    <div class="ticker-group-big">
+      <span class="ticker-item-big">SHEVA FLOWER</span>
+      <span class="ticker-item-big">SHEVA FLOWER</span>
+      <span class="ticker-item-big">SHEVA FLOWER</span>
+    </div>
+  </div>
+</div>
+
+<!-- Вертикальная строка: тянется от начала до низа страницы -->
+<div class="ticker-wrap-vertical">
+  <div class="ticker-track-vertical">
+    <div class="ticker-group-vertical">
+      <span class="ticker-item-vertical">SHEVA FLOWER</span>
+      <span class="ticker-item-vertical">SHEVA FLOWER</span>
+      <span class="ticker-item-vertical">SHEVA FLOWER</span>
+    </div>
+    <div class="ticker-group-vertical">
+      <span class="ticker-item-vertical">SHEVA FLOWER</span>
+      <span class="ticker-item-vertical">SHEVA FLOWER</span>
+      <span class="ticker-item-vertical">SHEVA FLOWER</span>
+    </div>
+    <div class="ticker-group-vertical">
+      <span class="ticker-item-vertical">SHEVA FLOWER</span>
+      <span class="ticker-item-vertical">SHEVA FLOWER</span>
+      <span class="ticker-item-vertical">SHEVA FLOWER</span>
+    </div>
+    <div class="ticker-group-vertical">
+      <span class="ticker-item-vertical">SHEVA FLOWER</span>
+      <span class="ticker-item-vertical">SHEVA FLOWER</span>
+      <span class="ticker-item-vertical">SHEVA FLOWER</span>
+    </div>
+  </div>
+</div>
+
+<section class="hero">
+  <!-- Интерактивное поле точек в пустой верхней зоне -->
+  <div class="hero-field"><canvas id="field"></canvas></div>
+  <div class="hero-text">
+    <h1><span>SHEVA</span><br><span>FLOWER</span><br><span>SHOP</span></h1>
+    <p>Мы не просто собираем цветы — мы создаём настроение. Насыщенная чёрно-белая эстетика, выразительные формы и внимание к деталям.</p>
+    <p class="bonus-note">Каждый заказ — <b>+10% бонусами</b> на личный счёт.</p>
+    <a href="#catalog" class="btn">Смотреть каталог</a>
+  </div>
+</section>
+
+<div class="wrap">
+  <section id="catalog" class="catalog-head">
+    <div>
+      <h2>Каталог</h2>
+      <p class="mono" style="color:#888; margin-top:10px;">Выберите категорию</p>
+    </div>
+    <div class="filter">
+      <button class="active" onclick="filterCat('all', this)">Все</button>
+      <button onclick="filterCat('roses', this)">Розы</button>
+      <button onclick="filterCat('seasonal', this)">Сезонные</button>
+      <button onclick="filterCat('minimal', this)">Минимализм</button>
+    </div>
+  </section>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<section id="contacts" class="contacts wrap">
+  <div class="contact-block">
+    <h3 class="mono">Адрес</h3>
+    <div class="addr-row">
+      <p>Симферополь, ул. Бор Чокрак, 3</p>
+      <a class="map-icon" target="_blank" rel="noopener"
+         href="https://yandex.ru/maps/?text=Симферополь%2C%20улица%20Бор%20Чокрак%2C%203"
+         title="Открыть в Яндекс Картах" aria-label="Открыть в Яндекс Картах">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+  <div class="contact-block">
+    <h3 class="mono">Часы работы</h3>
+    <p>Ежедневно с 09:00 до 20:00</p>
+  </div>
+  <div class="contact-block">
+    <h3 class="mono">Связь</h3>
+    <p>
+      <a href="tel:+79780397127">+7 (978) 039-71-27</a><br>
+      <a href="mailto:hello@shevaflower.ru">hello@shevaflower.ru</a>
+    </p>
+  </div>
+</section>
+
+<!-- Блок преимуществ — внизу страницы -->
+<section class="facts-bottom wrap" role="region" aria-label="Преимущества и условия магазина">
+  <div class="facts">
+    <div class="fact"><b>10%</b><span>бонусами с заказа</span></div>
+    <div class="fact"><b>2 часа</b><span>доставка по городу</span></div>
+    <div class="fact"><b>7 дней</b><span>гарантия стойкости</span></div>
+    <div class="fact"><b>24/7</b><span>приём заказов онлайн</span></div>
+  </div>
+</section>
+
+<footer>
+  <p>&copy; 2024 SHEVA FLOWER. Насыщенная чёрно-белая эстетика.</p>
+</footer>
+
+<!-- Модалка: корзина -->
+<div class="overlay" id="cartOverlay">
+  <div class="modal">
+    <button class="m-close" onclick="closeOverlay('cartOverlay')">✕</button>
+    <h3>Корзина</h3>
+    <p class="sub">10% от суммы вернётся бонусами</p>
+    <div id="cartList"></div>
+    <div id="cartFooter"></div>
+  </div>
+</div>
+
+<!-- Модалка: личный кабинет -->
+<div class="overlay" id="accOverlay">
+  <div class="modal">
+    <button class="m-close" onclick="closeOverlay('accOverlay')">✕</button>
+    <div id="accContent"></div>
+  </div>
+</div>
+
+<script>
+  /* ================= Каталог ================= */
+  const items = [
+    { id: 1, title: "Моно-букет из белых роз", price: 0, category: "roses",
+      img: "https://images.unsplash.com/photo-1516557070061-46a3ecc851d9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" },
+    { id: 2, title: "Сезонные пионы и эвкалипт", price: 0, category: "seasonal",
+      img: "https://images.unsplash.com/photo-1574158622682-e4067f6696cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" },
+    { id: 3, title: "Минималистичная композиция", price: 0, category: "minimal",
+      img: "https://images.unsplash.com/photo-1518888659322-d0be713d3b88?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" },
+    { id: 4, title: "Розы и зелень в крафте", price: 0, category: "roses",
+      img: "https://images.unsplash.com/photo-1526901376777-ccc994fe5d1f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" },
+    { id: 5, title: "Полевые цветы и лён", price: 0, category: "seasonal",
+      img: "https://images.unsplash.com/photo-1523558779154-b374f1b49847?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" },
+    { id: 6, title: "Строгий монохром", price: 0, category: "minimal",
+      img: "https://images.unsplash.com/photo-1518888659322-d0be713d3b88?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" }
+  ];
+
+  const grid = document.getElementById("grid");
+  const shadow = document.getElementById("shadow");
+
+  function render(data) {
+    grid.innerHTML = data.map(i => `
+      <article class="card fade-in">
+        <div class="card-img-wrap">
+          <img src="${i.img}" alt="${i.title}" class="card-img" loading="lazy">
+        </div>
+        <div class="card-info">
+          <h3 class="card-title">${i.title}</h3>
+          <div class="card-price">от <span class="price">—</span> ₽</div>
+          <button class="card-add" onclick="addToCart(${i.id})">В корзину</button>
+        </div>
+      </article>
+    `).join("");
+    const cards = document.querySelectorAll(".card");
+    cards.forEach((c, i) => setTimeout(() => c.classList.add("in"), i * 120));
+  }
+
+  function filterCat(cat, btn) {
+    document.querySelectorAll(".filter button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    render(cat === "all" ? items : items.filter(i => i.category === cat));
+  }
+
+  /* ================= Хранилище ================= */
+  let cart = JSON.parse(localStorage.getItem("sf_cart") || "[]");
+  let accounts = JSON.parse(localStorage.getItem("sf_accounts") || "{}");
+  let session = localStorage.getItem("sf_session");
+
+  const saveCart = () => localStorage.setItem("sf_cart", JSON.stringify(cart));
+  const saveAccounts = () => localStorage.setItem("sf_accounts", JSON.stringify(accounts));
+
+  const phoneKey = (value) => (value || "").replace(/\D/g, "").replace(/^8/, "7");
+
+  function prettyPhone(digits) {
+    const d = phoneKey(digits);
+    if (d.length !== 11) return digits;
+    return `+7 ${d.slice(1,4)} ${d.slice(4,7)}-${d.slice(7,9)}-${d.slice(9,11)}`;
+  }
+
+  const currentUser = () => (session && accounts[session]) ? accounts[session] : null;
+
+  function updateUser(fn) {
+    if (!currentUser()) return;
+    fn(accounts[session]);
+    saveAccounts();
+  }
+
+  /* ================= Маска телефона ================= */
+  function formatPhone(input) {
+    let d = input.value.replace(/\D/g, "");
+    if (!d) { input.value = ""; return; }
+
+    if (d[0] === "8") d = "7" + d.slice(1);
+    if (d[0] !== "7") d = "7" + d;
+    d = d.slice(0, 11);
+
+    let res = "+7";
+    if (d.length > 1) res += " " + d.slice(1, 4);
+    if (d.length > 4) res += " " + d.slice(4, 7);
+    if (d.length > 7) res += "-" + d.slice(7, 9);
+    if (d.length > 9) res += "-" + d.slice(9, 11);
+
+    input.value = res;
+  }
+
+  /* ================= Корзина ================= */
+  function addToCart(id) {
+    const line = cart.find(c => c.id === id);
+    if (line) line.qty++;
+    else cart.push({ id, qty: 1 });
+    saveCart();
+    refreshBadge();
+  }
+
+  function changeQty(id, delta) {
+    const line = cart.find(c => c.id === id);
+    if (!line) return;
+    line.qty += delta;
+    if (line.qty <= 0) cart = cart.filter(c => c.id !== id);
+    saveCart();
+    refreshBadge();
+    renderCart();
+  }
+
+  const cartTotal = () => cart.reduce((s, c) => s + (items.find(i => i.id === c.id)?.price || 0) * c.qty, 0);
+
+  function refreshBadge() {
+    document.getElementById("cartBadge").textContent = cart.reduce((s, c) => s + c.qty, 0);
+    const u = currentUser();
+    document.getElementById("ptsBadge").textContent = u ? "· " + u.points + " б" : "";
+  }
+
+  function openCart() {
+    renderCart();
+    document.getElementById("cartOverlay").classList.add("open");
+  }
+
+  function renderCart() {
+    const list = document.getElementById("cartList");
+    const footer = document.getElementById("cartFooter");
+
+    if (!cart.length) {
+      list.innerHTML = `<p class="empty-note">Пока пусто. Загляните в каталог — там красиво.</p>`;
+      footer.innerHTML = "";
+      return;
+    }
+
+    list.innerHTML = cart.map(c => {
+      const item = items.find(i => i.id === c.id);
+      return `
+        <div class="cart-item">
+          <span class="nm">${item.title}</span>
+          <span class="qty">
+            <button onclick="changeQty(${c.id}, -1)">−</button>
+            ${c.qty}
+            <button onclick="changeQty(${c.id}, 1)">+</button>
+          </span>
+          <span>${item.price * c.qty} ₽</span>
+        </div>`;
+    }).join("");
+
+    const total = cartTotal();
+    const u = currentUser();
+    footer.innerHTML = `
+      <div class="cart-total">
+        <span class="mono">Итого</span>
+        <b>${total} ₽</b>
+      </div>
+      <p class="bonus-line">Бонусами вернётся: <em>${Math.floor(total * 0.1)} б</em>${u ? "" : " · <a href='#' onclick='openAccountFromCart()'>войдите, чтобы копить</a>"}</p>
+      <button class="btn-full" onclick="checkout()">Оформить заказ</button>`;
+  }
+
+  function openAccountFromCart() {
+    closeOverlay("cartOverlay");
+    openAccount();
+    return false;
+  }
+
+  function checkout() {
+    const total = cartTotal();
+    if (!total) { alert("У товаров пока не заданы цены — как только появятся, заказ заработает."); return; }
+    if (!currentUser()) {
+      closeOverlay("cartOverlay");
+      openAccount();
+      alert("Войдите в личный кабинет — иначе бонусы некуда начислять :)");
+      return;
+    }
+    const earned = Math.floor(total * 0.1);
+    updateUser(u => {
+      u.points += earned;
+      u.orders.unshift({ date: new Date().toLocaleDateString("ru-RU"), total, earned });
+    });
+    cart = [];
+    saveCart();
+    refreshBadge();
+    closeOverlay("cartOverlay");
+    openAccount();
+    alert(`Заказ оформлен! +${earned} бонусов на счёт.`);
+  }
+
+  /* ================= Личный кабинет ================= */
+  function openAccount() {
+    renderAccount();
+    document.getElementById("accOverlay").classList.add("open");
+  }
+
+  function closeOverlay(id) {
+    document.getElementById(id).classList.remove("open");
+  }
+  document.querySelectorAll(".overlay").forEach(o =>
+    o.addEventListener("click", e => { if (e.target === o) o.classList.remove("open"); })
+  );
+  addEventListener("keydown", e => {
+    if (e.key === "Escape") document.querySelectorAll(".overlay.open").forEach(o => o.classList.remove("open"));
+  });
+
+  function renderAccount() {
+    const box = document.getElementById("accContent");
+    const u = currentUser();
+
+    if (!u) {
+      box.innerHTML = `
+        <h3>Личный кабинет</h3>
+        <p class="sub">Вход или регистрация — и 10% с каждого заказа ваши</p>
+        <div class="acc-tabs">
+          <button id="tabLogin" class="active" onclick="switchTab('login')">Вход</button>
+          <button id="tabReg" onclick="switchTab('reg')">Регистрация</button>
+        </div>
+        <div class="acc-panel active" id="panelLogin">
+          <div class="field">
+            <label>Телефон</label>
+            <input id="loginPhone" inputmode="tel" placeholder="+7 978 000-00-00" oninput="formatPhone(this)">
+          </div>
+          <div class="field"><label>Пароль</label><input id="loginPass" type="password" placeholder="••••••"></div>
+          <button class="btn-full" onclick="login()">Войти</button>
+        </div>
+        <div class="acc-panel" id="panelReg">
+          <div class="field"><label>Имя</label><input id="regName" placeholder="Как к вам обращаться"></div>
+          <div class="field">
+            <label>Телефон</label>
+            <input id="regPhone" inputmode="tel" placeholder="+7 978 000-00-00" oninput="formatPhone(this)">
+          </div>
+          <div class="field"><label>Пароль</label><input id="regPass" type="password" placeholder="Минимум 4 символа"></div>
+          <button class="btn-full" onclick="register()">Создать аккаунт</button>
+          <p class="bonus-line" style="margin-top:16px;">За регистрацию дарим <em>200 бонусов</em> сразу.</p>
+        </div>`;
+      return;
+    }
+
+    box.innerHTML = `
+      <div class="hello-name">${u.name}</div>
+      <p class="sub" style="margin-bottom:20px;">${prettyPhone(session)}</p>
+      <div class="points-card">
+        <div class="k">Бонусный счёт</div>
+        <div class="v">${u.points} б</div>
+        <div class="hint">1 бонус = 1 ₽ · начисляется 10% с каждого заказа</div>
+      </div>
+      <h3 style="font-size:20px; margin-bottom:8px;">История заказов</h3>
+      ${u.orders.length
+        ? u.orders.map(o => `
+            <div class="order-row">
+              <span>${o.date} · ${o.total} ₽</span>
+              <span class="plus">+${o.earned} б</span>
+            </div>`).join("")
+        : `<p class="empty-note">Заказов пока нет — самое время это исправить.</p>`}
+      <button class="btn-full" style="margin-top:20px;" onclick="logout()">Выйти</button>`;
+  }
+
+  function switchTab(t) {
+    document.getElementById("tabLogin").classList.toggle("active", t === "login");
+    document.getElementById("tabReg").classList.toggle("active", t === "reg");
+    document.getElementById("panelLogin").classList.toggle("active", t === "login");
+    document.getElementById("panelReg").classList.toggle("active", t === "reg");
+  }
+
+  function register() {
+    const name = document.getElementById("regName").value.trim();
+    const phoneRaw = document.getElementById("regPhone").value;
+    const pass = document.getElementById("regPass").value;
+
+    if (!name || pass.length < 4) { alert("Заполните все поля, пароль — от 4 символов."); return; }
+
+    const phone = phoneKey(phoneRaw);
+    if (phone.length !== 11) { alert("Введите номер полностью: +7 и 10 цифр."); return; }
+
+    if (accounts[phone]) { alert("Такой номер уже зарегистрирован — войдите."); switchTab("login"); return; }
+
+    accounts[phone] = { name, pass, points: 200, orders: [] };
+    saveAccounts();
+    session = phone;
+    localStorage.setItem("sf_session", phone);
+    refreshBadge();
+    renderAccount();
+  }
+
+  function login() {
+    const phoneRaw = document.getElementById("loginPhone").value;
+    const pass = document.getElementById("loginPass").value;
+
+    const phone = phoneKey(phoneRaw);
+    if (phone.length !== 11) { alert("Введите номер полностью: +7 и 10 цифр."); return; }
+
+    const acc = accounts[phone];
+    if (!acc || acc.pass !== pass) { alert("Не тот пароль или номер не найден."); return; }
+
+    session = phone;
+    localStorage.setItem("sf_session", phone);
+    refreshBadge();
+    renderAccount();
+  }
+
+  function logout() {
+    localStorage.removeItem("sf_session");
+    session = null;
+    refreshBadge();
+    renderAccount();
+  }
+
+  /* ================= Инициализация ================= */
+  render(items);
+  refreshBadge();
+
+  const progress = document.getElementById("progress");
+  window.addEventListener("scroll", () => {
+    const h = document.documentElement;
+    progress.style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + "%";
+  }, { passive: true });
+
+  /* Позиция курсора нужна и полю точек, и свечению */
+  const mouse = { x: -9999, y: -9999 };
+  const glow = document.getElementById("glow");
+  window.addEventListener("mousemove", (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+    const x = (e.clientX / window.innerWidth - 0.5) * 20;
+    const y = (e.clientY / window.innerHeight - 0.5) * 20;
+    shadow.style.transform = `translate(${x}px, ${y}px)`;
+    glow.style.left = e.clientX + "px";
+    glow.style.top = e.clientY + "px";
+  });
+
+  /* ===== Падающие листья ===== */
+  const cv = document.getElementById("petals");
+  const cx = cv.getContext("2d");
+  let W, H, leaves = [];
+  function resize() { W = cv.width = innerWidth; H = cv.height = innerHeight; }
+  resize();
+  addEventListener("resize", resize);
+
+  function drawLeaf(f) {
+    const s = f.r;
+    cx.save();
+    cx.translate(f.x, f.y);
+    cx.rotate(f.a + Math.sin(f.ph) * 0.4);
+    cx.scale(1, f.flip);
+
+    cx.beginPath();
+    cx.moveTo(0, -s * 1.4);
+    cx.quadraticCurveTo(s * 0.85, -s * 0.4, 0, s * 1.1);
+    cx.quadraticCurveTo(-s * 0.85, -s * 0.4, 0, -s * 1.4);
+    cx.closePath();
+    cx.fillStyle = `rgba(5,5,5,${f.al})`;
+    cx.fill();
+
+    cx.beginPath();
+    cx.moveTo(0, -s * 1.3);
+    cx.lineTo(0, s * 0.95);
+    cx.strokeStyle = `rgba(255,255,255,${f.al * 0.9})`;
+    cx.lineWidth = 1;
+    cx.stroke();
+
+    cx.beginPath();
+    cx.moveTo(0, -s * 0.7);  cx.lineTo(s * 0.4, -s * 0.35);
+    cx.moveTo(0, -s * 0.2);  cx.lineTo(-s * 0.4, s * 0.1);
+    cx.moveTo(0, s * 0.3);   cx.lineTo(s * 0.38, s * 0.6);
+    cx.strokeStyle = `rgba(255,255,255,${f.al * 0.7})`;
+    cx.stroke();
+
+    cx.beginPath();
+    cx.moveTo(0, s * 1.1);
+    cx.lineTo(0, s * 1.45);
+    cx.strokeStyle = `rgba(5,5,5,${f.al})`;
+    cx.lineWidth = 1.4;
+    cx.stroke();
+
+    cx.restore();
+  }
+
+  for (let i = 0; i < 34; i++) {
+    leaves.push({
+      x: Math.random() * W, y: Math.random() * H,
+      r: 5 + Math.random() * 9,
+      a: Math.random() * Math.PI * 2,
+      va: (Math.random() - .5) * .015,
+      vy: .3 + Math.random() * .7,
+      vx: (Math.random() - .5) * .3,
+      al: .06 + Math.random() * .12,
+      ph: Math.random() * Math.PI * 2,
+      flip: Math.random() * 0.9 + 0.35
+    });
+  }
+
+  (function loop() {
+    cx.clearRect(0, 0, W, H);
+    for (const f of leaves) {
+      f.y += f.vy;
+      f.x += f.vx + Math.sin(f.ph += .012) * .4;
+      f.a += f.va;
+      if (f.y > H + 30) { f.y = -30; f.x = Math.random() * W; }
+      if (f.x < -30 || f.x > W + 30) f.x = Math.random() * W;
+      drawLeaf(f);
+    }
+    requestAnimationFrame(loop);
+  })();
+
+  /* ===== Интерактивное поле точек (магнитная сетка) =====
+     Сетка точек в верхней правой зоне. Курсор отталкивает точки,
+     они плавно возвращаются пружиной. Без курсора — лёгкая «дыхательная» волна. */
+  const fieldCv = document.getElementById("field");
+  const fcx = fieldCv.getContext("2d");
+  let dots = [], fW, fH, t = 0;
+
+  function buildField() {
+    const r = fieldCv.parentElement.getBoundingClientRect();
+    fW = fieldCv.width = r.width * devicePixelRatio;
+    fH = fieldCv.height = r.height * devicePixelRatio;
+    fieldCv.style.width = r.width + "px";
+    fieldCv.style.height = r.height + "px";
+
+    dots = [];
+    const gap = 34 * devicePixelRatio;
+    for (let x = gap / 2; x < fW; x += gap) {
+      for (let y = gap / 2; y < fH; y += gap) {
+        dots.push({ bx: x, by: y, ox: 0, oy: 0, vx: 0, vy: 0 });
+      }
+    }
+  }
+  buildField();
+  addEventListener("resize", buildField);
+
+  (function fieldLoop() {
+    t += .015;
+    fcx.clearRect(0, 0, fW, fH);
+
+    // позиция курсора в координатах поля
+    const rect = fieldCv.getBoundingClientRect();
+    const mx = (mouse.x - rect.left) * devicePixelRatio;
+    const my = (mouse.y - rect.top) * devicePixelRatio;
+    const R = 170 * devicePixelRatio; // радиус влияния курсора
+
+    for (const d of dots) {
+      // цель: мягкая волна покоя
+      let tx = Math.sin(t + d.bx * 0.004) * 3 * devicePixelRatio;
+      let ty = Math.cos(t * 0.8 + d.by * 0.005) * 3 * devicePixelRatio;
+
+      // отталкивание от курсора
+      const dx = d.bx - mx, dy = d.by - my;
+      const dist = Math.hypot(dx, dy);
+      if (dist < R && dist > 0) {
+        const force = (1 - dist / R) * 26 * devicePixelRatio;
+        tx += (dx / dist) * force;
+        ty += (dy / dist) * force;
+      }
+
+      // пружина: плавный возврат
+      d.vx += (tx - d.ox) * 0.08;
+      d.vy += (ty - d.oy) * 0.08;
+      d.vx *= 0.86;
+      d.vy *= 0.86;
+      d.ox += d.vx;
+      d.oy += d.vy;
+
+      // яркость растёт ближе к курсору — точки «просыпаются»
+      const near = dist < R ? 1 - dist / R : 0;
+      const alpha = 0.16 + near * 0.5;
+
+      fcx.beginPath();
+      fcx.arc(d.bx + d.ox, d.by + d.oy, (1.3 + near * 1.6) * devicePixelRatio, 0, Math.PI * 2);
+      fcx.fillStyle = `rgba(5,5,5,${alpha})`;
+      fcx.fill();
+    }
+    requestAnimationFrame(fieldLoop);
+  })();
+</script>
+
+</body>
+</html>
+
+
+
+
